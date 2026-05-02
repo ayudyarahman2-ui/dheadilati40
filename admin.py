@@ -48,10 +48,20 @@ if menu == "Produk":
 
 elif menu == "Tambah Produk":
     nama = st.text_input("Nama")
-    harga = st.number_input("Harga", min_value=0)
-    stok = st.number_input("Stok", min_value=0)
+harga = st.number_input("Harga Asli", min_value=0)
+promo = st.checkbox("Produk Promo?")
 
-    if st.button("Simpan"):
-        c.execute("INSERT INTO produk (nama, harga, stok) VALUES (?, ?, ?)", (nama, harga, stok))
-        conn.commit()
-        st.success("Berhasil")
+if promo:
+    harga_promo = st.number_input("Harga Promo", min_value=0)
+else:
+    harga_promo = 0
+
+stok = st.number_input("Stok", min_value=0)
+
+if st.button("Simpan"):
+    c.execute(
+        "INSERT INTO produk (nama, harga, harga_promo, promo, stok) VALUES (?, ?, ?, ?, ?)",
+        (nama, harga, harga_promo, int(promo), stok)
+    )
+    conn.commit()
+    st.success("Berhasil ditambahkan")
