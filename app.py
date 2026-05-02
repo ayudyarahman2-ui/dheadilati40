@@ -5,76 +5,96 @@ import random
 # ---------- CONFIG ----------
 st.set_page_config(layout="wide")
 
+# ---------- THEME TOGGLE ----------
+if "theme" not in st.session_state:
+    st.session_state.theme = "dark"
+
+mode = st.sidebar.toggle("🌙 Dark Mode", value=True)
+st.session_state.theme = "dark" if mode else "light"
+
+# ---------- THEME SET ----------
+theme = st.session_state.theme
+
+if theme == "dark":
+    bg = "#0f172a"
+    card = "#1e293b"
+    text = "white"
+else:
+    bg = "#f8fafc"
+    card = "white"
+    text = "black"
+
 # ---------- STYLE ----------
-st.markdown("""
+st.markdown(f"""
 <style>
+.stApp {{
+    background: {bg};
+    color: {text};
+}}
 
-/* BACKGROUND */
-.stApp {
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-    color: white;
-}
-
-/* TEXT */
-h1, h2, h3 {
-    color: white;
-}
-
-/* CARD */
-.card {
-    background: #1e293b;
+.card {{
+    background: {card};
     padding: 20px;
     border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     text-align: center;
     transition: 0.3s;
-}
+}}
 
-.card:hover {
+.card:hover {{
     transform: translateY(-5px);
-}
+}}
 
-/* PRICE */
-.price {
+.price {{
     font-size: 18px;
     font-weight: bold;
     color: #38bdf8;
-}
+}}
 
-.promo {
+.promo {{
     color: #22c55e;
     font-size: 20px;
     font-weight: bold;
-}
+}}
 
-.old-price {
+.old-price {{
     text-decoration: line-through;
-    color: #94a3b8;
-}
+    color: gray;
+}}
 
-/* BUTTON */
-.stButton>button {
+h1,h2,h3,p,label {{
+    color: {text};
+}}
+
+.stButton>button {{
     background-color: #22c55e;
     color: white;
     border-radius: 10px;
     border: none;
-    padding: 8px 16px;
-}
-
-/* SIDEBAR */
-section[data-testid="stSidebar"] {
-    background-color: #0f172a;
-}
-
+}}
 </style>
 """, unsafe_allow_html=True)
 
 # ---------- DATA ----------
 if "produk_data" not in st.session_state:
     st.session_state.produk_data = pd.DataFrame({
-        "Nama": ["Nugget", "Sosis", "Dimsum"],
-        "Harga": [25000, 18000, 22000],
-        "Promo": [20000, None, None]
+        "Nama": [
+            "Nugget Fiesta", "Sosis So Nice", "Dimsum Ayam",
+            "Kentang Goreng", "Bakso Frozen", "Tempura",
+            "Chicken Katsu", "Fish Roll"
+        ],
+        "Harga": [25000, 18000, 22000, 15000, 20000, 23000, 27000, 19000],
+        "Promo": [20000, None, None, 12000, None, 20000, None, None],
+        "Gambar": [
+            "https://via.placeholder.com/150",
+            "https://via.placeholder.com/150",
+            "https://via.placeholder.com/150",
+            "https://via.placeholder.com/150",
+            "https://via.placeholder.com/150",
+            "https://via.placeholder.com/150",
+            "https://via.placeholder.com/150",
+            "https://via.placeholder.com/150"
+        ]
     })
 
 # ---------- AUTH ----------
@@ -109,28 +129,37 @@ def login_page():
 
 # ---------- ADMIN ----------
 def admin_dashboard():
+    df = st.session_state.produk_data
+
     st.sidebar.title("📊 Menu Admin")
     menu = st.sidebar.radio("Menu", ["Dashboard", "Monitoring Suhu", "Manajemen Harga"])
 
     st.title("👨‍💼 Admin Dashboard")
 
+    # DASHBOARD
     if menu == "Dashboard":
-        col1, col2 = st.columns(2)
-        col1.metric("Total Produk", len(st.session_state.produk_data))
-        col2.metric("Promo Aktif", st.session_state.produk_data['Promo'].count())
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Produk", len(df))
+        col2.metric("Promo Aktif", df['Promo'].count())
+        col3.metric("Rata-rata Harga", int(df["Harga"].mean()))
 
+        st.subheader("📈 Grafik Harga Produk")
+        st.bar_chart(df.set_index("Nama")["Harga"])
+
+    # MONITORING
     elif menu == "Monitoring Suhu":
-        temp = read_temperature()
-        st.metric("Suhu Freezer", f"{temp} °C")
+        temps = [read_temperature() for _ in range(10)]
 
-        if temp > -10:
+        st.metric("Suhu Terakhir", f"{temps[-1]} °C")
+        st.line_chart(temps)
+
+        if temps[-1] > -10:
             st.error("⚠️ Suhu terlalu tinggi!")
         else:
             st.success("✅ Suhu normal")
 
+    # MANAJEMEN
     elif menu == "Manajemen Harga":
-        df = st.session_state.produk_data
-
         produk = st.selectbox("Pilih Produk", df["Nama"])
         idx = df[df["Nama"] == produk].index[0]
 
@@ -142,14 +171,17 @@ def admin_dashboard():
             df.loc[idx, "Promo"] = promo if promo != 0 else None
             st.success("Update berhasil")
 
+        st.subheader("Preview Data")
+        st.dataframe(df)
+
     if st.sidebar.button("Logout"):
         st.session_state.login = False
         st.session_state.page = "konsumen"
 
 # ---------- KONSUMEN ----------
 def customer_display():
-
     temp = read_temperature()
+    df = st.session_state.produk_data
 
     # HEADER
     col1, col2, col3 = st.columns([1,6,1])
@@ -164,27 +196,20 @@ def customer_display():
         if st.button("Admin"):
             st.session_state.page = "login"
 
-    # SUHU
-    st.markdown(f"""
-    <div style='text-align:right; font-size:16px; color:#cbd5f5;'>
-    🌡️ Suhu Freezer: <b>{temp} °C</b>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:right;'>🌡️ {temp} °C</div>", unsafe_allow_html=True)
 
     st.write("")
-    st.write("")
-
     st.markdown("<h2 style='text-align:center;'>🛒 Produk Kami</h2>", unsafe_allow_html=True)
 
-    df = st.session_state.produk_data
-    cols = st.columns(3)
+    cols = st.columns(4)
 
     for i, row in df.iterrows():
-        with cols[i % 3]:
+        with cols[i % 4]:
             if pd.notna(row["Promo"]):
                 st.markdown(f"""
                 <div class="card">
-                    <h3>{row['Nama']}</h3>
+                    <img src="{row['Gambar']}" width="100%">
+                    <h4>{row['Nama']}</h4>
                     <p class="old-price">Rp {row['Harga']:,}</p>
                     <p class="promo">Rp {int(row['Promo']):,}</p>
                 </div>
@@ -192,7 +217,8 @@ def customer_display():
             else:
                 st.markdown(f"""
                 <div class="card">
-                    <h3>{row['Nama']}</h3>
+                    <img src="{row['Gambar']}" width="100%">
+                    <h4>{row['Nama']}</h4>
                     <p class="price">Rp {row['Harga']:,}</p>
                 </div>
                 """, unsafe_allow_html=True)
