@@ -76,19 +76,15 @@ h1,h2,h3,p,label {{
 """, unsafe_allow_html=True)
 
 # ---------- DATA ----------
-if "produk_data" not in st.session_state:
+if "produk_data" not in st.session_state or "Gambar" not in st.session_state.produk_data.columns:
     st.session_state.produk_data = pd.DataFrame({
         "Nama": [
             "Nugget Fiesta", "Sosis So Nice", "Dimsum Ayam",
-            "Kentang Goreng", "Bakso Frozen", "Tempura",
-            "Chicken Katsu", "Fish Roll"
+            "Kentang Goreng", "Bakso Frozen"
         ],
-        "Harga": [25000, 18000, 22000, 15000, 20000, 23000, 27000, 19000],
-        "Promo": [20000, None, None, 12000, None, 20000, None, None],
+        "Harga": [25000, 18000, 22000, 15000, 20000],
+        "Promo": [20000, None, None, 12000, None],
         "Gambar": [
-            "https://via.placeholder.com/150",
-            "https://via.placeholder.com/150",
-            "https://via.placeholder.com/150",
             "https://via.placeholder.com/150",
             "https://via.placeholder.com/150",
             "https://via.placeholder.com/150",
