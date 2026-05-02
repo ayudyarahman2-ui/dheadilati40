@@ -113,9 +113,10 @@ elif menu == "Produk":
     if df.empty:
         st.warning("Belum ada produk")
     else:
-        cols = st.columns(4)
         for i, row in df.iterrows():
-            with cols[i % 4]:
+            col1, col2 = st.columns([4,1])
+
+            with col1:
                 st.markdown(f"""
                 <div class="card">
                     <h4>{row['nama']}</h4>
@@ -123,6 +124,13 @@ elif menu == "Produk":
                     <p>Stok: {row['stok']}</p>
                 </div>
                 """, unsafe_allow_html=True)
+
+            with col2:
+                if st.button(f"Hapus {row['id']}"):
+                    c.execute("DELETE FROM produk WHERE id = ?", (row['id'],))
+                    conn.commit()
+                    st.success("Produk dihapus ✅")
+                    st.rerun()
 
 # ================= TAMBAH PRODUK =================
 elif menu == "Tambah Produk":
