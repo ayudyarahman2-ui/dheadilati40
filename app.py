@@ -35,21 +35,38 @@ if not st.session_state.admin_mode:
         st.warning("Belum ada produk")
     else:
         cols = st.columns(4)
-        for i, row in df.iterrows():
-            with cols[i % 4]:
-                st.markdown(f"""
-                <div style="
-                    background:white;
-                    padding:20px;
-                    border-radius:15px;
-                    text-align:center;
-                    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-                ">
-                    <h4>{row['nama']}</h4>
-                    <h2 style="color:#007bff;">Rp {row['harga']:,}</h2>
-                    <p>Stok: {row['stok']}</p>
-                </div>
-                """, unsafe_allow_html=True)
+       if row['promo'] == 1:
+    harga_html = f"""
+        <p style="text-decoration: line-through; color: gray;">
+            Rp {row['harga']:,}
+        </p>
+        <h2 style="color:red;">
+            Rp {row['harga_promo']:,}
+        </h2>
+        <span style="color:white; background:red; padding:3px 8px; border-radius:5px;">
+            PROMO
+        </span>
+    """
+else:
+    harga_html = f"""
+        <h2 style="color:#007bff;">
+            Rp {row['harga']:,}
+        </h2>
+    """
+
+st.markdown(f"""
+<div style="
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+">
+    <h4>{row['nama']}</h4>
+    {harga_html}
+    <p>Stok: {row['stok']}</p>
+</div>
+""", unsafe_allow_html=True)
 
     # 🔐 AKSES ADMIN (PASSWORD)
     st.markdown("### 🔐 Admin Access")
