@@ -4,13 +4,6 @@ import random
 
 # ---------- CONFIG ----------
 st.set_page_config(layout="wide")
-.card {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-}
 
 # ---------- THEME TOGGLE ----------
 if "theme" not in st.session_state:
@@ -34,17 +27,19 @@ else:
 # ---------- STYLE ----------
 st.markdown(f"""
 <style>
+
+/* BACKGROUND */
 .stApp {{
     background: {bg};
     color: {text};
 }}
 
+/* CARD */
 .card {{
-    background: {card};
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
     border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    text-align: center;
+    padding: 20px;
     transition: 0.3s;
 }}
 
@@ -52,6 +47,7 @@ st.markdown(f"""
     transform: translateY(-5px);
 }}
 
+/* PRICE */
 .price {{
     font-size: 18px;
     font-weight: bold;
@@ -69,19 +65,21 @@ st.markdown(f"""
     color: gray;
 }}
 
+/* TEXT */
 h1,h2,h3,p,label {{
     color: {text};
 }}
 
+/* BUTTON */
 .stButton>button {{
     background-color: #22c55e;
     color: white;
     border-radius: 10px;
     border: none;
 }}
+
 </style>
 """, unsafe_allow_html=True)
-
 # ---------- DATA ----------
 if "produk_data" not in st.session_state or "Gambar" not in st.session_state.produk_data.columns:
     st.session_state.produk_data = pd.DataFrame({
