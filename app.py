@@ -1,80 +1,84 @@
 import streamlit as st
-import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
 
-st.set_page_config(layout="wide")
+# CONFIG
+st.set_page_config(page_title="Frozen Mart", layout="wide")
 
 # LOAD CSS
 with open("assets/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # HEADER
-st.markdown("""
+st.markdown(f"""
 <div class="topbar">
-    <div class="logo">❄️ FROZEN MART</div>
-    <div class="info">
-        🌡️ -18.6°C | ⏰ 10:30:45 | 👤 Admin
-    </div>
+    <div><b>❄️ FROZEN MART</b><br><small>Smart Freezer • Digital Price Tag</small></div>
+    <div>🌡️ -18.6°C | ⏰ {datetime.now().strftime("%H:%M:%S")} | 👤 Admin</div>
 </div>
 """, unsafe_allow_html=True)
 
 # SIDEBAR
-st.markdown("""
-<div class="sidebar">
-    <h2>❄️ Frozen Mart</h2>
-    <ul>
-        <li>🏠 Dashboard</li>
-        <li>📦 Produk</li>
-        <li>🌡️ Monitoring</li>
-        <li>⚙️ Pengaturan</li>
-        <li>🚪 Logout</li>
-    </ul>
-</div>
-""", unsafe_allow_html=True)
+with st.sidebar:
+    st.title("❄️ Frozen Mart")
+    menu = st.radio("Menu", ["Dashboard", "Produk", "Monitoring"])
 
-# PRODUK
-st.markdown("<h3>DAFTAR PRODUK</h3>", unsafe_allow_html=True)
-
-cols = st.columns(4)
-products = [
-    ("Wall's Vanilla", "Rp 15.000", "25"),
-    ("Frozen Chicken", "Rp 35.000", "18"),
-    ("Sosis Premium", "Rp 28.000", "30"),
-    ("Ikan Dori", "Rp 32.000", "20"),
+# DATA
+data = [
+    {"nama": "Wall's Vanilla", "harga": 15000, "stok": 25},
+    {"nama": "Frozen Chicken", "harga": 35000, "stok": 18},
+    {"nama": "Sosis Premium", "harga": 28000, "stok": 30},
+    {"nama": "Ikan Dori", "harga": 32000, "stok": 20},
 ]
-
-for i, (name, price, stock) in enumerate(products):
-    with cols[i]:
-        st.markdown(f"""
-        <div class="card">
-            <h4>{name}</h4>
-            <h2>{price}</h2>
-            <p>Stok: {stock}</p>
-        </div>
-        """, unsafe_allow_html=True)
+df = pd.DataFrame(data)
 
 # DASHBOARD
-st.markdown("<h3>DASHBOARD ADMIN</h3>", unsafe_allow_html=True)
+if menu == "Dashboard":
 
-c1, c2, c3, c4 = st.columns(4)
+    st.subheader("📊 Dashboard Admin")
 
-c1.markdown('<div class="metric">🌡️<br>-18.6°C</div>', unsafe_allow_html=True)
-c2.markdown('<div class="metric">📦<br>4 Produk</div>', unsafe_allow_html=True)
-c3.markdown('<div class="metric">🔥<br>2 Promo</div>', unsafe_allow_html=True)
-c4.markdown('<div class="metric">📊<br>93 Unit</div>', unsafe_allow_html=True)
+    col1, col2, col3, col4 = st.columns(4)
 
-# GRAFIK
-x = list(range(10))
-y = [-18, -20, -19, -21, -18, -22, -20, -19, -18, -17]
+    col1.metric("Suhu Freezer", "-18.6 °C")
+    col2.metric("Total Produk", len(df))
+    col3.metric("Produk Promo", 2)
+    col4.metric("Total Stok", df["stok"].sum())
 
-fig = go.Figure()
-fig.add_trace(go.Scatter(x=x, y=y, mode='lines+markers'))
+    st.subheader("Grafik Suhu")
 
-fig.update_layout(
-    template="plotly_white",
-    margin=dict(l=0, r=0, t=30, b=0),
-    height=300
-)
+    suhu_data = pd.DataFrame({
+        "Suhu": [-18, -20, -19, -21, -18, -22, -20]
+    })
 
-st.plotly_chart(fig, use_container_width=True)
+    st.line_chart(suhu_data)
+
+# PRODUK
+elif menu == "Produk":
+
+    st.subheader("🛒 Daftar Produk")
+
+    cols = st.columns(4)
+    for i, row in df.iterrows():
+        with cols[i]:
+            st.markdown(f"""
+            <div class="card">
+                <h4>{row['nama']}</h4>
+                <h2>Rp {row['harga']:,}</h2>
+                <p>Stok: {row['stok']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+# MONITORING
+elif menu == "Monitoring":
+
+    st.subheader("🌡️ Monitoring Suhu")
+
+    suhu = -18.6
+    st.metric("Suhu Saat Ini", f"{suhu} °C")
+
+    st.success("Sistem Normal ✅")
+
+# FOOTER
+st.markdown("""
+<hr>
+<center>© 2025 Frozen Mart</center>
+""", unsafe_allow_html=True)
