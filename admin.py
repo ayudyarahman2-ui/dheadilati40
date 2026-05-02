@@ -49,6 +49,7 @@ if menu == "Produk":
 elif menu == "Tambah Produk":
     nama = st.text_input("Nama")
 harga = st.number_input("Harga Asli", min_value=0)
+
 promo = st.checkbox("Produk Promo?")
 
 if promo:
@@ -64,4 +65,3 @@ if st.button("Simpan"):
         (nama, harga, harga_promo, int(promo), stok)
     )
     conn.commit()
-    st.success("Berhasil ditambahkan")
