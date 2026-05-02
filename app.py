@@ -13,10 +13,11 @@ CREATE TABLE IF NOT EXISTS produk (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nama TEXT,
     harga INTEGER,
+    harga_promo INTEGER,
+    promo INTEGER,
     stok INTEGER
 )
 """)
-conn.commit()
 
 # ================= MODE =================
 if "admin_mode" not in st.session_state:
