@@ -4,6 +4,13 @@ import random
 
 # ---------- CONFIG ----------
 st.set_page_config(layout="wide")
+.card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
 
 # ---------- THEME TOGGLE ----------
 if "theme" not in st.session_state:
