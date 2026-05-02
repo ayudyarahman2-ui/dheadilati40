@@ -5,9 +5,10 @@ import sqlite3
 st.set_page_config(layout="wide")
 
 conn = sqlite3.connect("data.db", check_same_thread=False)
+c = conn.cursor()
 
-# BUAT TABLE KALAU BELUM ADA
-conn.execute("""
+# BUAT TABLE
+c.execute("""
 CREATE TABLE IF NOT EXISTS produk (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nama TEXT,
@@ -15,34 +16,82 @@ CREATE TABLE IF NOT EXISTS produk (
     stok INTEGER
 )
 """)
+conn.commit()
 
-# CEK URL (ADMIN MODE)
-params = st.query_params
-mode_admin = False
+# ================= MODE =================
+if "admin_mode" not in st.session_state:
+    st.session_state.admin_mode = False
 
-if "admin" in params:
-    mode_admin = True
-# HALAMAN KONSUMEN
-st.title("❄️ Frozen Mart")
-st.subheader("Daftar Produk")
+# ================= KONSUMEN =================
+if not st.session_state.admin_mode:
 
-df = pd.read_sql("SELECT * FROM produk", conn)
+    st.title("❄️ Frozen Mart")
+    st.subheader("Daftar Produk")
 
-if df.empty:
-    st.warning("Belum ada produk")
+    df = pd.read_sql("SELECT * FROM produk", conn)
+
+    if df.empty:
+        st.warning("Belum ada produk")
+    else:
+        cols = st.columns(4)
+        for i, row in df.iterrows():
+            with cols[i % 4]:
+                st.markdown(f"""
+                <div style="
+                    background:white;
+                    padding:20px;
+                    border-radius:15px;
+                    text-align:center;
+                    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+                ">
+                    <h4>{row['nama']}</h4>
+                    <h2 style="color:#007bff;">Rp {row['harga']:,}</h2>
+                    <p>Stok: {row['stok']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+    # 🔐 AKSES ADMIN (PASSWORD)
+    st.markdown("### 🔐 Admin Access")
+    code = st.text_input("Masukkan kode admin", type="password")
+
+    if code == "admin123":
+        st.session_state.admin_mode = True
+        st.rerun()
+
+# ================= ADMIN =================
 else:
-    cols = st.columns(4)
-    for i, row in df.iterrows():
-        with cols[i % 4]:
-            st.markdown(f"""
-            <div style="background:white;padding:20px;border-radius:15px;text-align:center;">
-                <h4>{row['nama']}</h4>
-                <h2 style="color:#007bff;">Rp {row['harga']:,}</h2>
-                <p>Stok: {row['stok']}</p>
-            </div>
-            """, unsafe_allow_html=True)
 
-# tombol rahasia admin
-if st.button("⚙️"):
-    st.query_params["admin"] = "1"
-    st.rerun()
+    st.title("⚙️ Admin Panel")
+
+    if st.button("Logout"):
+        st.session_state.admin_mode = False
+        st.rerun()
+
+    menu = st.sidebar.radio("Menu", ["Produk", "Tambah Produk"])
+
+    # LIHAT + HAPUS
+    if menu == "Produk":
+        df = pd.read_sql("SELECT * FROM produk", conn)
+
+        for i, row in df.iterrows():
+            col1, col2 = st.columns([4,1])
+
+            with col1:
+                st.write(f"{row['nama']} - Rp {row['harga']:,} (Stok: {row['stok']})")
+
+            with col2:
+                if st.button("🗑️", key=row['id']):
+                    c.execute("DELETE FROM produk WHERE id=?", (row['id'],))
+                    conn.commit()
+                    st.rerun()
+
+    # TAMBAH PRODUK
+    elif menu == "Tambah Produk":
+        nama = st.text_input("Nama")
+        harga = st.number_input("Harga", min_value=0)
+        stok = st.number_input("Stok", min_value=0)
+
+        if st.button("Simpan"):
+            c.execute("INSERT INTO produk (nama, harga, stok) VALUES (?, ?, ?)", (nama, harga, stok))
+            conn.commit()
+            st.success("Berhasil ditambahkan")
