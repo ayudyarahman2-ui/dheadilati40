@@ -6,9 +6,24 @@ from datetime import datetime
 st.set_page_config(page_title="Frozen Mart", layout="wide")
 
 # LOAD CSS
-with open("assets/style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
+st.markdown("""
+<style>
+.topbar {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+}
+</style>
+""", unsafe_allow_html=True)
 # HEADER
 st.markdown(f"""
 <div class="topbar">
