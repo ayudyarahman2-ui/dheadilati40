@@ -132,10 +132,10 @@ def login_page():
 def admin_dashboard():
     df = st.session_state.produk_data
 
-    st.sidebar.title("📊 Menu Admin")
+    st.sidebar.title("Menu Admin")
     menu = st.sidebar.radio("Menu", ["Dashboard", "Monitoring Suhu", "Manajemen Harga"])
 
-    st.title("👨‍💼 Admin Dashboard")
+    st.title("Admin Dashboard")
 
     # DASHBOARD
     if menu == "Dashboard":
@@ -191,7 +191,7 @@ def customer_display():
         st.image("https://cdn-icons-png.flaticon.com/512/869/869869.png", width=60)
 
     with col2:
-        st.markdown("<h2 style='text-align:center;'>❄️ FROZEN MART</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center;'>❄️ REDBOX FROZEN SOGIRI</h2>", unsafe_allow_html=True)
 
     with col3:
         if st.button("Admin"):
