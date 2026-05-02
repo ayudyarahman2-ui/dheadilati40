@@ -18,8 +18,10 @@ CREATE TABLE IF NOT EXISTS produk (
 
 # CEK URL (ADMIN MODE)
 params = st.query_params
-mode_admin = params.get("admin") == "1"
+mode_admin = False
 
+if "admin" in params:
+    mode_admin = True
 # HALAMAN KONSUMEN
 st.title("❄️ Frozen Mart")
 st.subheader("Daftar Produk")
