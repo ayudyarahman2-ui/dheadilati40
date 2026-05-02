@@ -80,21 +80,22 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 # ================= LOGIN =================
-if "login" not in st.session_state:
-    st.session_state.login = False
+if "role" not in st.session_state:
+    st.session_state.role = None
 
-if not st.session_state.login:
-    st.title("🔐 Login Admin")
+if st.session_state.role is None:
+    st.title("🔐 Login")
 
     user = st.text_input("Username")
     pw = st.text_input("Password", type="password")
 
     if st.button("Login"):
         if user == "admin" and pw == "123":
-            st.session_state.login = True
+            st.session_state.role = "admin"
             st.rerun()
         else:
-            st.error("Login salah ❌")
+            st.session_state.role = "user"
+            st.rerun()
 
     st.stop()
 
@@ -108,9 +109,13 @@ st.markdown(f"""
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    menu = st.radio("Menu", ["Dashboard", "Produk", "Tambah Produk", "Monitoring"])
+    if st.session_state.role == "admin":
+        menu = st.radio("Menu", ["Dashboard", "Produk", "Tambah Produk", "Monitoring"])
+    else:
+        menu = st.radio("Menu", ["Produk"])
+
     if st.button("Logout"):
-        st.session_state.login = False
+        st.session_state.role = None
         st.rerun()
 
 # ================= DASHBOARD =================
@@ -149,12 +154,14 @@ elif menu == "Produk":
                 </div>
                 """, unsafe_allow_html=True)
 
-            with col2:
-                if st.button(f"Hapus {row['id']}"):
-                    c.execute("DELETE FROM produk WHERE id = ?", (row['id'],))
-                    conn.commit()
-                    st.success("Produk dihapus ✅")
-                    st.rerun()
+            # 🔐 HANYA ADMIN YANG BISA HAPUS
+            if st.session_state.role == "admin":
+                with col2:
+                    if st.button("🗑️", key=row['id']):
+                        c.execute("DELETE FROM produk WHERE id = ?", (row['id'],))
+                        conn.commit()
+                        st.success("Produk dihapus")
+                        st.rerun()
 
 # ================= TAMBAH PRODUK =================
 elif menu == "Tambah Produk":
