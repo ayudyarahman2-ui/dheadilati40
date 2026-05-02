@@ -22,36 +22,60 @@ conn.commit()
 # ================= CSS =================
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] {
-    background: #f4f7fb;
+
+/* GLOBAL FONT SIZE */
+html, body, [class*="css"]  {
+    font-size: 14px;
 }
+
+/* JUDUL */
+h1 { font-size: 22px !important; }
+h2 { font-size: 18px !important; }
+h3 { font-size: 16px !important; }
+
+/* TOPBAR */
 .topbar {
     background: white;
-    padding: 15px;
+    padding: 12px 20px;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
 }
+
+/* CARD */
 .card {
     background: white;
-    padding: 20px;
-    border-radius: 15px;
+    padding: 15px;
+    border-radius: 12px;
     text-align: center;
-    box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
+    font-size: 14px;
 }
+
+/* HARGA (biar ga terlalu gede) */
+.card h2 {
+    font-size: 16px !important;
+    color: #007bff;
+}
+
+/* METRIC BOX */
 .metric-box {
     background: white;
-    padding: 20px;
-    border-radius: 15px;
+    padding: 15px;
+    border-radius: 12px;
     text-align: center;
+    font-size: 14px;
 }
+
+/* SIDEBAR */
 section[data-testid="stSidebar"] {
     background: linear-gradient(#0b1c3f, #123c8c);
 }
+
 section[data-testid="stSidebar"] * {
     color: white !important;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
